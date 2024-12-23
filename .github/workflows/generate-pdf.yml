@@ -1,6 +1,5 @@
 name: Generate PDF from Markdown
 
-# Ce workflow s'exécute lorsqu'un push est effectué sur la branche 'main'
 on:
   push:
     branches:
@@ -11,14 +10,16 @@ on:
 
 jobs:
   generate_pdf:
-    runs-on: ubuntu-latest  # Utilisation d'une machine virtuelle Ubuntu pour exécuter le workflow
+    runs-on: ubuntu-latest
 
     steps:
-    # Étape 1 : Vérification du dépôt
-    - name: Checkout repository
-      uses: actions/checkout@v3  # Permet de récupérer le code source du dépôt pour l'utiliser dans le workflow
+    # Étape 1 : Cloner le dépôt manuellement
+    - name: Clone the repository
+      run: |
+        git clone https://github.com/${{ github.repository }}.git
+        cd ${{ github.repository }}
 
-    # Étape 2 : Installation de Pandoc et des dépendances LaTeX
+    # Étape 2 : Installer Pandoc et LaTeX
     - name: Install Pandoc and LaTeX
       run: |
         sudo apt-get update
@@ -50,4 +51,4 @@ jobs:
     # Étape 6 : Utiliser GITHUB_TOKEN pour pousser les modifications
     - name: Push changes
       run: |
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git 
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
