@@ -39,17 +39,21 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add output/output.pdf
-        git commit -m "Add generated PDF"
-        
-        # Utilisation du GITHUB_TOKEN pour l'authentification
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
+        git commit -m "Add generated PDF" || echo "No changes to commit"
+
+    - name: Push PDF to repository
+      run: |
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
 
     - name: Update README with PDF link
       run: |
-        echo "# Generated PDF" > README.md
-        echo "[Download the generated PDF](output/output.pdf)" >> README.md
-        git add README.md
-        git commit -m "Update README with PDF link"
-        
-        # Utilisation du GITHUB_TOKEN pour l'authentification
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
+        # Vérifier si le fichier README.md existe avant de le modifier
+        if [ -f README.md ]; then
+          echo "# Generated PDF" > README.md
+          echo "[Download the generated PDF](output/output.pdf)" >> README.md
+          git add README.md
+          git commit -m "Update README with PDF link" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+        else
+          echo "README.md does not exist, skipping update."
+        fi
