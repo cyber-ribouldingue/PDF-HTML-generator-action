@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: write  # Donne la permission de modifier les fichiers dans le dépôt
+
 jobs:
   generate-pdf:
     runs-on: ubuntu-latest
@@ -38,7 +41,7 @@ jobs:
         git add output/output.pdf
         git commit -m "Add generated PDF"
         
-        # Use the GitHub token for authentication
+        # Utilisation du GITHUB_TOKEN pour l'authentification
         git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
 
     - name: Update README with PDF link
@@ -48,5 +51,5 @@ jobs:
         git add README.md
         git commit -m "Update README with PDF link"
         
-        # Use the GitHub token for authentication
+        # Utilisation du GITHUB_TOKEN pour l'authentification
         git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
