@@ -1,0 +1,38 @@
+name: Generate PDF with Pandoc
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Pandoc and LaTeX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
+
+    - name: Generate PDF from Markdown
+      run: |
+        mkdir -p output
+        pandoc input.md -o output/input.pdf
+
+    - name: Add PDF link to README
+      run: |
+        echo "## PDF généré" > README.md
+        echo "[Télécharger le PDF généré](output/input.pdf)" >> README.md
+
+    - name: Commit updated README
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add README.md
+        git commit -m "Mise à jour du lien PDF dans le README"
+        git push
