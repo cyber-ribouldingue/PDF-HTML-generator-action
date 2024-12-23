@@ -1,52 +1,55 @@
-name: Generate PDF from Markdown
+name: Generate PDF with Pandoc
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+
+permissions:
+  contents: write  # Donne la permission de modifier les fichiers dans le dépôt
 
 jobs:
-  generate_pdf:
+  generate-pdf:
     runs-on: ubuntu-latest
 
     steps:
-    # Étape 1 : Cloner le dépôt
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Étape 2 : Installer Pandoc et LaTeX
-    - name: Install Pandoc and LaTeX
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y pandoc
-        sudo apt-get install -y texlive-xetex  # Installation de LaTeX pour générer le PDF
-
-    # Étape 3 : Vérifier si le fichier input.md existe
-    - name: Check if input.md exists
+    - name: Check if input file exists
       run: |
         if [ ! -f input.md ]; then
-          echo "input.md is missing"
+          echo "Error: input.md is missing!"
           exit 1
         fi
 
-    # Étape 4 : Générer le PDF à partir du fichier Markdown
-    - name: Generate PDF from Markdown
+    - name: Install Pandoc and LaTeX
       run: |
-        mkdir -p output  # Création du dossier 'output' pour stocker le PDF généré
-        pandoc input.md -o output/output.pdf  # Conversion du fichier Markdown en PDF
+        sudo apt-get update
+        sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    # Étape 5 : Ajouter le PDF généré au dépôt
-    - name: Commit and push PDF
+    - name: Generate PDF
       run: |
-        git config --global user.name "github-actions [bot]"
+        mkdir -p output
+        pandoc input.md -o output/output.pdf
+
+    - name: Add the PDF to the repository
+      run: |
+        git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add output/output.pdf  # Ajouter le PDF généré au dépôt
-        git commit -m "Add generated PDF"  # Commit du PDF généré
+        git add output/output.pdf
+        git commit -m "Add generated PDF"
+        
+        # Utilisation du GITHUB_TOKEN pour l'authentification
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
 
-    # Étape 6 : Utiliser GITHUB_TOKEN pour pousser les modifications
-    - name: Push changes
+    - name: Update README with PDF link
       run: |
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+        echo "# Generated PDF" > README.md
+        echo "[Download the generated PDF](output/output.pdf)" >> README.md
+        git add README.md
+        git commit -m "Update README with PDF link"
+        
+        # Utilisation du GITHUB_TOKEN pour l'authentification
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
