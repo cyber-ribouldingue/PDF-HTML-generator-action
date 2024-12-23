@@ -39,21 +39,32 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add output/output.pdf
-        git commit -m "Add generated PDF" || echo "No changes to commit"
+        git commit -m "Add generated PDF"
+        
+        # Utilisation du GITHUB_TOKEN pour l'authentification
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
 
-    - name: Push PDF to repository
+    - name: Update README with PDF link and explanation
       run: |
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
-
-    - name: Update README with PDF link
-      run: |
-        # Vérifier si le fichier README.md existe avant de le modifier
-        if [ -f README.md ]; then
-          echo "# Generated PDF" > README.md
-          echo "[Download the generated PDF](output/output.pdf)" >> README.md
-          git add README.md
-          git commit -m "Update README with PDF link" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
-        else
-          echo "README.md does not exist, skipping update."
-        fi
+        echo "# Génération de PDF avec Pandoc" > README.md
+        echo "" >> README.md
+        echo "Ce dépôt utilise un **GitHub Actions workflow** pour générer automatiquement des fichiers PDF à partir de fichiers Markdown (`.md`) en utilisant **Pandoc** et **LaTeX**." >> README.md
+        echo "" >> README.md
+        echo "## Fonctionnement du Workflow" >> README.md
+        echo "1. Vérification de l'existence du fichier Markdown (`input.md`)." >> README.md
+        echo "2. Installation de Pandoc et LaTeX." >> README.md
+        echo "3. Génération du PDF à partir de `input.md`." >> README.md
+        echo "4. Ajout du PDF généré au dépôt." >> README.md
+        echo "5. Mise à jour automatique du `README.md` avec un lien vers le PDF." >> README.md
+        echo "" >> README.md
+        echo "## Comment générer un PDF" >> README.md
+        echo "1. Ajoutez un fichier `input.md` à la racine du dépôt." >> README.md
+        echo "2. Effectuez un **push** ou une **pull request** vers la branche `main`." >> README.md
+        echo "3. Le PDF sera généré et ajouté au dossier `output/`." >> README.md
+        echo "" >> README.md
+        echo "[Télécharger le PDF généré](output/output.pdf)" >> README.md
+        git add README.md
+        git commit -m "Update README with explanation and PDF link"
+        
+        # Utilisation du GITHUB_TOKEN pour l'authentification
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
