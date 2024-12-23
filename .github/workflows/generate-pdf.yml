@@ -14,25 +14,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install Pandoc and LaTeX
+    - name: Vérifier la présence de input.md
+      run: |
+        if [ ! -f input.md ]; then
+          echo "Erreur : input.md est manquant !"
+          exit 1
+        fi
+
+    - name: Installer Pandoc et LaTeX
       run: |
         sudo apt-get update
         sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    - name: Generate PDF from Markdown
+    - name: Générer le PDF
       run: |
-        mkdir -p output
-        pandoc input.md -o output/input.pdf
+        mkdir -p sortie
+        pandoc input.md -o sortie/output.pdf
 
-    - name: Add PDF link to README
-      run: |
-        echo "## PDF généré" > README.md
-        echo "[Télécharger le PDF généré](output/input.pdf)" >> README.md
-
-    - name: Commit updated README
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add README.md
-        git commit -m "Mise à jour du lien PDF dans le README"
-        git push
+    - name: Télécharger le PDF généré
+      uses: actions/upload-artifact@v3
+      with:
+        name: pdf-généré
+        path: sortie/output.pdf
