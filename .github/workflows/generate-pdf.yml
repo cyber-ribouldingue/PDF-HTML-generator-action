@@ -13,11 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Étape 1 : Cloner le dépôt manuellement
-    - name: Clone the repository
-      run: |
-        git clone https://github.com/${{ github.repository }}.git
-        cd ${{ github.repository }}
+    # Étape 1 : Cloner le dépôt
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     # Étape 2 : Installer Pandoc et LaTeX
     - name: Install Pandoc and LaTeX
@@ -26,7 +24,7 @@ jobs:
         sudo apt-get install -y pandoc
         sudo apt-get install -y texlive-xetex  # Installation de LaTeX pour générer le PDF
 
-    # Étape 3 : Vérification de l'existence du fichier input.md
+    # Étape 3 : Vérifier si le fichier input.md existe
     - name: Check if input.md exists
       run: |
         if [ ! -f input.md ]; then
@@ -34,7 +32,7 @@ jobs:
           exit 1
         fi
 
-    # Étape 4 : Génération du PDF
+    # Étape 4 : Générer le PDF à partir du fichier Markdown
     - name: Generate PDF from Markdown
       run: |
         mkdir -p output  # Création du dossier 'output' pour stocker le PDF généré
@@ -45,7 +43,7 @@ jobs:
       run: |
         git config --global user.name "github-actions [bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add output/output.pdf  # Ajout du PDF généré au dépôt
+        git add output/output.pdf  # Ajouter le PDF généré au dépôt
         git commit -m "Add generated PDF"  # Commit du PDF généré
 
     # Étape 6 : Utiliser GITHUB_TOKEN pour pousser les modifications
