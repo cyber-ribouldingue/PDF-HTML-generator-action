@@ -17,35 +17,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Check if input file exists
+      run: |
+        if [ ! -f input.md ]; then
+          echo "Error: input.md is missing!"
+          exit 1
+        fi
+
     - name: Install Pandoc and LaTeX
       run: |
         sudo apt-get update
         sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-recommended
 
-    - name: Generate PDF and HTML for all Markdown files
+    - name: Generate PDF
       run: |
-        # Crée les répertoires de sortie pour les PDF et HTML
         mkdir -p output/pdf
+        pandoc input.md -o output/pdf/output.pdf
+
+    - name: Generate HTML
+      run: |
         mkdir -p output/html
-
-        # Trouve tous les fichiers .md dans le dépôt et génère PDF et HTML pour chaque fichier
-        for file in $(find . -type f -name "*.md"); do
-          # Extraire le nom du fichier sans l'extension
-          filename=$(basename "$file" .md)
-
-          # Générer le PDF et HTML
-          pandoc "$file" -o "output/pdf/$filename.pdf"
-          pandoc "$file" -o "output/html/$filename.html"
-        done
+        pandoc input.md -o output/html/output.html
 
     - name: Add generated files to the repository
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        
-        # Ajouter tous les fichiers générés PDF et HTML
-        git add output/pdf/*
-        git add output/html/*
+        git add output/pdf/output.pdf
+        git add output/html/output.html
         git commit -m "Add generated PDF and HTML files"
         
         # Utilisation du GITHUB_TOKEN pour l'authentification
@@ -55,22 +54,23 @@ jobs:
       run: |
         echo "# Génération de PDF et HTML avec Pandoc" > README.md
         echo "" >> README.md
-        echo "Ce dépôt utilise un **GitHub Actions workflow** pour générer automatiquement des fichiers PDF et HTML à partir de tous les fichiers Markdown (`.md`) en utilisant **Pandoc** et **LaTeX**." >> README.md
+        echo "Ce dépôt utilise un **GitHub Actions workflow** pour générer automatiquement des fichiers PDF et HTML à partir de fichiers Markdown (`.md`) en utilisant **Pandoc** et **LaTeX**." >> README.md
         echo "" >> README.md
         echo "## Fonctionnement du Workflow" >> README.md
-        echo "1. Recherche et génération de fichiers PDF et HTML pour tous les fichiers `.md`." >> README.md
+        echo "1. Vérification de l'existence du fichier Markdown (`input.md`)." >> README.md
         echo "2. Installation de Pandoc et LaTeX." >> README.md
-        echo "3. Génération des fichiers PDF et HTML pour chaque fichier Markdown trouvé." >> README.md
+        echo "3. Génération du PDF et du HTML à partir de `input.md`." >> README.md
         echo "4. Ajout des fichiers générés au dépôt." >> README.md
         echo "5. Mise à jour automatique du `README.md` avec des liens vers les fichiers générés." >> README.md
         echo "" >> README.md
         echo "## Comment générer un PDF et un HTML" >> README.md
-        echo "1. Ajoutez un fichier `.md` à la racine du dépôt." >> README.md
+        echo "1. Ajoutez un fichier `input.md` à la racine du dépôt." >> README.md
         echo "2. Effectuez un **push** ou une **pull request** vers la branche `main`." >> README.md
-        echo "3. Le PDF et le fichier HTML seront générés et ajoutés aux dossiers `output/pdf/` et `output/html/`." >> README.md
+        echo "3. Le PDF sera généré et ajouté au dossier `output/pdf/`." >> README.md
+        echo "4. Le fichier HTML sera généré et ajouté au dossier `output/html/`." >> README.md
         echo "" >> README.md
-        echo "[Télécharger le PDF généré](output/pdf/)" >> README.md
-        echo "[Télécharger le fichier HTML généré](output/html/)" >> README.md
+        echo "[Télécharger le PDF généré](output/pdf/output.pdf)" >> README.md
+        echo "[Télécharger le fichier HTML généré](output/html/output.html)" >> README.md
         git add README.md
         git commit -m "Update README with explanation and links to PDF and HTML files"
         
