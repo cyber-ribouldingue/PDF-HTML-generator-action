@@ -50,4 +50,4 @@ jobs:
     # Étape 6 : Utiliser GITHUB_TOKEN pour pousser les modifications
     - name: Push changes
       run: |
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
