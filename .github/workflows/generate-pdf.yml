@@ -38,10 +38,8 @@ jobs:
         git add output/output.pdf
         git commit -m "Add generated PDF"
         
-        # Use the GitHub token to authenticate
-        git push https://github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        # Use the GitHub token for authentication
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
 
     - name: Update README with PDF link
       run: |
@@ -50,7 +48,5 @@ jobs:
         git add README.md
         git commit -m "Update README with PDF link"
         
-        # Use the GitHub token to authenticate
-        git push https://github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        # Use the GitHub token for authentication
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} --force
