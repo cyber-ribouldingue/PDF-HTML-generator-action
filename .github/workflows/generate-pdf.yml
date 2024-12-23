@@ -37,3 +37,12 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add output/output.pdf
         git commit -m "Add generated PDF"
+        git push
+
+    - name: Update README with PDF link
+      run: |
+        echo "# Generated PDF" > README.md
+        echo "[Download the generated PDF](output/output.pdf)" >> README.md
+        git add README.md
+        git commit -m "Update README with PDF link"
+        git push
