@@ -14,10 +14,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Vérifier la présence de input.md
+    - name: Vérifier la présence de entrée.md
       run: |
-        if [ ! -f input.md ]; then
-          echo "Erreur : input.md est manquant !"
+        if [ ! -f entrée.md ]; then
+          echo "Erreur : entrée.md est manquant !"
           exit 1
         fi
 
@@ -28,11 +28,21 @@ jobs:
 
     - name: Générer le PDF
       run: |
-        mkdir -p sortie
-        pandoc input.md -o sortie/output.pdf
+        mkdir -p output
+        pandoc entrée.md -o output/output.pdf
 
-    - name: Télécharger le PDF généré
-      uses: actions/upload-artifact@v3
-      with:
-        name: pdf-généré
-        path: sortie/output.pdf
+    - name: Ajouter le PDF au dépôt
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add output/output.pdf
+        git commit -m "Ajout du PDF généré"
+        git push
+
+    - name: Mettre à jour le README avec le lien vers le PDF
+      run: |
+        echo "# PDF Généré" > README.md
+        echo "[Télécharger le PDF généré](output/output.pdf)" >> README.md
+        git add README.md
+        git commit -m "Mise à jour du README avec le lien vers le PDF"
+        git push
