@@ -46,4 +46,8 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add output/output.pdf  # Ajout du PDF généré au dépôt
         git commit -m "Add generated PDF"  # Commit du PDF généré
-        git push origin main  # Pousser les modifications sur la branche 'main'
+
+    # Étape 6 : Utiliser GITHUB_TOKEN pour pousser les modifications
+    - name: Push changes
+      run: |
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
